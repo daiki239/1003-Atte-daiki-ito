@@ -13,19 +13,15 @@ class CreateAttendancesTable extends Migration
      */
     public function up()
     {
-   
-        
-            Schema::create('attendances', function (Blueprint $table) {
+       Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->date('date');
             $table->dateTime('start_time');
             $table->dateTime('end_time')->nullable();
-            $table->dateTime('total_hours_worked')->nullable();
-            $table->dateTime('total_break_time')->nullable();
             $table->timestamp('created_at')->useCurrent()->nullable();
             $table->timestamp('updated_at')->useCurrent()->nullable();
-      
+
         });
     }
 

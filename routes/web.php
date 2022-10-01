@@ -26,7 +26,7 @@ Route::post('/stamp', [StampController::class, 'stamp']);
 Route::post('/stamped',  [StampController::class, 'stamped']);
 Route::post('/rest', [StampController::class, 'rest']);
 Route::post('/rested',  [StampController::class, 'rested']);
-
+Route::get('/home', [StampController::class, 'index']);
 
 /*
 attendance
@@ -35,8 +35,13 @@ Route::get('/attendance',  [StampController::class, 'attendance']);
 
 
 
+Route::get('/logout', [StampController::class, 'logout']);
+
+
+
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('index');
 })->middleware(['auth'])->name('dashboard');
 
 require __DIR__.'/auth.php';

@@ -5,39 +5,108 @@
  <title>Todo List</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
+<style>
+ h2{margin-right: 50%;
+
+    }
+ .flex_right{display: flex;
+                  flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+      }
+
+a{text-decoration: none;
+  justify-content: right;
+}
+
+ table th {
+    font-size: 20px;
+    padding: 20px 50px;
+    border-top: solid 1px #000;
+  }
+
+  td {
+    border-bottom: 1px solid black;
+  }
+  tr {
+    border: solid 1px gray;
+  }
+
+  .home{font-weight: bold;
+    text-align: right;
+    margin: 0px;
+    text-align: none;
+  }
+
+  .infometion{ width: 100%;
+
+  }
+
+  .page{width: 100%;
+    
+    
+
+  }
+
+</style>
 <body>
+
+<div class="flex_right">
 <h2>Atte</h2>
-　<ul>
-  　<li>ホーム</li>
-  　<li>日付一覧</li>
-  　<li>ログアウト</li>
+ 
+　<ul class=home>
+  　<a class="arrow" href="/">ホーム</a>
+  　<a class="arrow" href="/attendance">日付一覧</a>
+  　<a class="arrow" href="/logout">ログアウト</a>
 　</ul>
-<p class=name>さんお疲れ様です！</p>
+</div>
+
 
    @section('content')
+ <div class="infometion">
 <table>
+ 
   <tr>
-    <th>id</th>
-    <th>name</th>
-    <th>age</th>
-    <th>nationality</th>
+    <th>名前</th>
+    <th>勤怠開始</th>
+    <th>勤務終了</th>
+    <th>休憩時間</th>
+    <th>勤務時間</th>
   </tr>
-            
+</div>
+  
+   
 
 @foreach ($attendances as $attendance)
   <tr>
-    <td>
-      {{$attendance->id}}
+    
+    <th>  {{$attendance->user->name}}</th>
+    <th> {{$attendance->start_time}}</th>
+ 
+    <th>{{$attendance->end_time}}</th>
+ 
+  
+     <th></th>
+ @endforeach 
+
+
     </td>
   </tr>
-  @endforeach  
+  
 
 
- <li>名前</li>
- <li>勤怠開始</li>
- <li>勤怠終了</li>
-  <li>休憩時間</li>
-   <li>勤務時間</li>
+  
+
+  <div class=page>
+ 
+</div>
+
+
+
+   
+
+
+ 
   </form>
 
 

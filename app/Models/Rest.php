@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Rest extends Model
 {
    use HasFactory;
-    protected $fillable = ['user_id', 'worktaime_id', 'break_in', 'break_out'];
+    protected $fillable = ['id','attendance_id','date','start_time', 'end_time'];
 
 
- public function user(){
-        return $this->belongsTo('App\Models\User', 'user_id');
+ public function attendance() {
+        return $this->belongsTo('App\Models\Attendance');
     }
+
+
+ protected $primaryKey = 'attendance_id';
 
 }

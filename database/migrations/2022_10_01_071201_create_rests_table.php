@@ -15,10 +15,10 @@ class CreateRestsTable extends Migration
     {
         Schema::create('rests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('work__time_id')->constrained('work__times');
-            $table->dateTime('break_in');
-            $table->dateTime('break_out')->nullable();
+            $table->foreignId('attendance_id')->constrained('attendances');
+            $table->date('date');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time')->nullable();
             $table->timestamp('created_at')->useCurrent()->nullable();
             $table->timestamp('updated_at')->useCurrent()->nullable();
         });

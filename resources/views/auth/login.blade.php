@@ -35,7 +35,7 @@
                                 required autocomplete="current-password" />
             </div>
                 <x-button class="flex items-center ml-3">
-                    {{ __('Log in') }}
+                    {{ ('ログイン') }}
                 </x-button>
             </div>
             

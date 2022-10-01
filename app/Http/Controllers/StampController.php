@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Rest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\AuthorRequest;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 class StampController extends Controller
 {
@@ -16,7 +21,7 @@ class StampController extends Controller
         
     }
 
-
+//勤怠開始処理
     public function stamp(Request $request) {
      
         $id = Auth::id();
@@ -62,154 +67,104 @@ class StampController extends Controller
 
     }
 
-
-public function stamped(Request $request) {
-      $id = Auth::id();
+//退勤処理
+public static function stamped() {
+       $id = Auth::id();
         $dt = new Carbon();
         $date = $dt->toDateString();
         $time = $dt->toDateTimeString();
-
-
-        
-        $attendance = Attendance::where('user_id', $id)->whereNull('end_time')->where('date', $date)->first();
-
-        $total_break_time = Rest::where('break_out');
-
-
-        
+        $attendance = Attendance::where('user_id', $id)->where('date', $date)->first();
+         
+        $attendance_id = $attendance->id;
+        $rest = Rest::where('attendance_id', $attendance_id)->whereNull('end_time')->where('date', $date)->first();
+       
         if (!empty($attendance)) {
-            $attendance->update(['end_time' => $time, 'toral_break_time' => $rest_id]);
-            return redirect('/')->with('result', '勤務を終了しました');
+            $attendance->update(['end_time' => $time]);
+            
+            return redirect('/')->with('result', '休憩を終了しました');
         } else {
-            return redirect()->back()->with('result', '勤務が開始されていないか、勤務が終了されています');
+            return redirect()->back()->with('result', '休憩が開始されていないか、勤務が終了されています');
         }
 
-        
-    }
-
-
-    public function rest(Request $request)  {
-        $latestWorkTime = Work_Time::where('user_id', $request->user_id)->latest()->first();
-        $latestBreakTime = Break_Time::where('work__time_id', $latestWorkTime->id)->latest()->first();
-        if($latestWorkTime->start_time && !($latestWorkTime->end_time)) {
-            if(empty($latestBreakTime->break_in)) {
-                $data = [
-                    'break_in' => Carbon::now(),
-                ];
-                Break_Time::create([
-                    'user_id' => $latestWorkTime->user_id,
-                    'work__time_id' => $latestWorkTime->id,
-                    'break_in' => $data['break_in'],
-                ]);
-                return redirect()->back();
-            }elseif($latestBreakTime->break_in && $latestBreakTime->break_out) {
-                $data = [
-                    'break_in' => Carbon::now(),
-                ];
-                Break_Time::create([
-                    'user_id' => $latestWorkTime->user_id,
-                    'work__time_id' => $latestWorkTime->id,
-                    'break_in' => $data['break_in'],
-                ]);
-                return redirect()->back();
-            }
-        }
-        return redirect()->back()->with('message', '休憩開始が実行できません');
-    }
     
-      
+      }
+
+      //休憩開始処理
+    public function rest(Request $request)   {
+     
+        $id = Auth::id();
+        $dt = new Carbon();
+        $date = $dt->toDateString();
+        $time = $dt->toDateTimeString(); 
+        $attendance = Attendance::where('user_id', $id)->where('date', $date)->latest()->first();
+        $nostart_time =
+        Attendance::where('user_id', $id)->where('date', $date)->whereNull('start_time')->first();
+          Rest::create([
+             'attendance_id' => $id,
+            'date' => $date,
+            'start_time' => $time,
+        ]);
+        return redirect('/')->with('my_status', '退勤打刻が完了しました');
+    }
       
 
-    public function rested(Request $request) {
-        $latestWorkTime = Work_Time::where('user_id', $request->user_id)->latest()->first();
-        $latestBreakTime = Break_Time::where('work__time_id', $latestWorkTime->id)->latest()->first();
-        $latestWorkStart = new Carbon($latestWorkTime->start_time);
-        $oldDay = $latestWorkStart->copy()->startOfDay();
-        $addDay = $oldDay->copy()->addDay();
-        $today = Carbon::today();
-        $now = Carbon::now();
-
-        if($latestBreakTime->break_in && empty($latestBreakTime->break_out)) {
-            if($addDay == $today){
-                $workStart = new Carbon($latestWorkTime->start_time);
-                $endOfDay = new Carbon($oldDay->copy()->endOfDay());
-                
-                $latestBreakTime->update([
-                'work__time_id' => $latestBreakTime->work__time_id,
-                'break_out' => $endOfDay,
-                ]);
-                $breakTimes = Break_Time::where('work__time_id', $latestWorkTime->id)->get();
-                $diffStayHours = $workStart->diffInHours($endOfDay);
-                $diffStayMinutes = $workStart->diffInMinutes($endOfDay);
-                $diffStaySeconds = $workStart->diffInSeconds($endOfDay);
-                foreach($breakTimes as $breakTime){
-                    $breakStart = new Carbon($breakTime->break_in);
-                    $breakEnd = new Carbon($breakTime->break_out);
-                    $diffBreakHours[] = $breakStart->diffInHours($breakEnd);
-                    $diffBreakMinutes[] = $breakStart->diffInMinutes($breakEnd);
-                    $diffBreakSeconds[] = $breakStart->diffInSeconds($breakEnd);
-                }
-                $totalBreakHours = array_sum($diffBreakHours);
-                $totalBreakMinutes = array_sum($diffBreakMinutes);
-                $totalBreakSeconds = array_sum($diffBreakSeconds);
-
-                $workTimeHours = $diffStayHours - $totalBreakHours;
-                $workTimeMinutes = $diffStayMinutes - $totalBreakMinutes;
-                $workTimeSeconds = $diffStaySeconds - $totalBreakSeconds;
-
-                $totalHoursWorked = $oldDay->copy()->setTime($workTimeHours, $workTimeMinutes, $workTimeSeconds);
-                $totalBreakTime = $oldDay->copy()->setTime($totalBreakHours, $totalBreakMinutes, $totalBreakSeconds);
-                $date = [
-                        'date' => $oldDay,
-                        'end_time' => $endOfDay,
-                        'total_hours_worked' => $totalHoursWorked,
-                        'total_break_time' => $totalBreakTime,
-                ];
-                $this->validate($request, $date, Work_Time::$rules);
-                $latestWorkTime->update([
-                    'user_id' => $request->user_id,
-                    'date' => $date['date'],
-                    'end_time' => $date['end_time'],
-                    'total_hours_worked' => $date['total_hours_worked'],
-                    'total_break_time' => $date['total_break_time'],
-                ]);
-                $items = [
-                        'date' => $today,
-                        'start_time' => $today,
-                ];
-                $this->validate($request, $items, Work_Time::$rules);
-                Work_Time::create([
-                    'user_id' => $request->user_id,
-                    'date' => $items['date'],
-                    'start_time' => $items['start_time'],
-                ]);
-
-                $moreLatestWorkTime = Work_Time::where('user_id', $request->user_id)->latest()->first();
-                Break_Time::create([
-                    'user_id' => $moreLatestWorkTime->user_id,
-                    'work__time_id' => $moreLatestWorkTime->id,
-                    'break_in' => $today,
-                    'break_out' => $now,
-                ]);
-                return redirect()->back();
-            }else {
-                $latestBreakTime->update([
-                'work__time_id' => $latestBreakTime->work__time_id,
-                'break_out' => Carbon::now(),
-                ]);
-                return redirect()->back();
-            }
-        }else {
-            return redirect()->back()->with('message', '休憩終了が実行できません');
-        }
-    
-    }
-
-
-public function attendance(Request $request)
+//休憩終了処理
+    public function rested(Request $request)
     {
-          $attendances = Attendance::all();
-        return view('attendance', ['attendances' => $attendances]);
-    }
+        $id = Auth::id();
+        $dt = new Carbon();
+        $date = $dt->toDateString();
+        $time = $dt->toDateTimeString();
+        $attendance = Attendance::where('user_id', $id)->where('date', $date)->first();
+         
+        $attendance_id = $attendance->id;
+        $rest = Rest::where('attendance_id', $attendance_id)->whereNull('end_time')->where('date', $date)->first();
+       
+        if (!empty($rest)) {
+            $rest->update(['end_time' => $time]);
+            
+            return redirect('/')->with('result', '休憩を終了しました');
+        } else {
+            return redirect()->back()->with('result', '休憩が開始されていないか、勤務が終了されています');
+        }
 
+       
+    }    
+
+    public function attendance(Request $request)
+    {   $id = Auth::id();
+        $dt = new Carbon();
+        $date = $dt->toDateString();
+        $time = $dt->toDateTimeString();
+   
+     
+       $rests = Rest::where('attendance_id',$id)->get();
+       
+       
+        
+       $attendances = Attendance::simplePaginate(5)->all();
+      $rests = Rest::paginate(5);
+
+
+       
+
+       return view('attendance', ['attendances' => $attendances]);
+        }
+   
+   
+
+
+
+      
+  
+
+
+
+
+
+    public function logout(){
+        Auth::logout();
+        return redirect('/login');
+    }
 }
+
