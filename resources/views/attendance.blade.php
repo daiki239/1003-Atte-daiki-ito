@@ -43,10 +43,10 @@ a{text-decoration: none;
   }
 
   .page{width: 100%;
-    
-    
-
   }
+   svg.w-5.h-5 {/*paginateメソッドの矢印の大きさ調整のために追加*/width: 30px;
+    height: 30px;
+    }
 
 </style>
 <body>
@@ -89,6 +89,7 @@ a{text-decoration: none;
      <th></th>
  @endforeach 
 
+ {{$attendances->links()}}
 
     </td>
   </tr>
