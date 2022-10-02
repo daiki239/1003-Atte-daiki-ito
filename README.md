@@ -2,6 +2,7 @@
 
 概要説明
 Atte（勤怠管理アプリ）
+https://user-images.githubusercontent.com/105230102/193452030-2fd7f84b-2b78-42de-8bcf-0dd4bd19e0f3.jpeg
 
 
 作成した目的
