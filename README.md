@@ -9,7 +9,7 @@ https://user-images.githubusercontent.com/105230102/193452030-2fd7f84b-2b78-42de
 
 [作成した目的]
 
-人事評価のため、勤怠管理システムを作成
+・人事評価のため、勤怠管理システムを作成
 
 
 
@@ -34,7 +34,11 @@ https://user-images.githubusercontent.com/105230102/193452030-2fd7f84b-2b78-42de
 [テーブル設計図]
 
 
+https://user-images.githubusercontent.com/105230102/193452302-34a9055a-bcde-4e1c-9fb9-b11f170366d0.jpeg
+
 [ER図]
+
+
 https://user-images.githubusercontent.com/105230102/193452289-f4e157cd-c476-4556-8f51-a5aade4f15ee.jpeg
 
 [環境構築]
