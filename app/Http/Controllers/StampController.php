@@ -131,6 +131,8 @@ public static function stamped() {
        
     }    
 
+
+    //打刻一覧表示
     public function attendance(Request $request)
     {   $id = Auth::id();
         $dt = new Carbon();
