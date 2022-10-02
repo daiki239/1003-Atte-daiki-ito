@@ -138,14 +138,9 @@ public static function stamped() {
         $dt = new Carbon();
         $date = $dt->toDateString();
         $time = $dt->toDateTimeString();
-   
-     
        $rests = Rest::where('attendance_id',$id)->get();
-       
-       
-        
-       $attendances = Attendance::simplePaginate(5)->all();
-      $rests = Rest::paginate(5);
+       $attendances = Attendance::simplePaginate(5);
+     
 
 
        
